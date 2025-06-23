@@ -1,0 +1,18 @@
+### Test API without Bearer Token
+GET http://127.0.0.1:8000/api/projects
+Accept: application/json
+
+### Test API with Bearer Token
+GET http://127.0.0.1:8000/api/projects
+Accept: application/json
+Authorization: Bearer Asndaih123ASFahcm331
+
+### Test API with Invalid Bearer Token
+GET http://127.0.0.1:8000/api/projects
+Accept: application/json
+Authorization: Bearer Asndaih123ASFahcm331 
+
+### Skill
+GET http://127.0.0.1:8000/api/skills
+Accept: application/json
+Authorization: Bearer Asndaih123ASFahcm331 
