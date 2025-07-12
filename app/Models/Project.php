@@ -12,10 +12,9 @@ class Project extends Model
     protected $fillable = [
         'title',
         'type',
-        'image',
+        'images',
         'author',
         'date',
-        'gradient',
         'description',
         'technologies',
         'features',
@@ -25,6 +24,7 @@ class Project extends Model
     ];
 
     protected $casts = [
+        'images' => 'array',
         'technologies' => 'array',
         'features' => 'array',
     ];

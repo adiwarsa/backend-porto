@@ -35,13 +35,17 @@
                     <label class="form-label">{{ __('field.status') }}</label>
                     <input type="text" class="form-control-plaintext" readonly value="{{ $item->status }}">
                 </div>
-                <div class="mb-3 col-md-6">
-                    <label class="form-label">{{ __('field.image') }}</label>
-                    <input type="text" class="form-control-plaintext" readonly value="{{ $item->image }}">
-                </div>
-                <div class="mb-3 col-md-6">
-                    <label class="form-label">{{ __('field.gradient') }}</label>
-                    <input type="text" class="form-control-plaintext" readonly value="{{ $item->gradient }}">
+                <div class="mb-3 col-md-12">
+                    <label class="form-label">{{ __('field.images') }}</label>
+                    @if($item->images && count($item->images) > 0)
+                        <div class="d-flex flex-wrap gap-2">
+                            @foreach($item->images as $image)
+                                <img src="{{ asset('storage/'.$image) }}" class="img-thumbnail" style="max-height: 150px;">
+                            @endforeach
+                        </div>
+                    @else
+                        <input type="text" class="form-control-plaintext" readonly value="No images">
+                    @endif
                 </div>
                 <div class="mb-3 col-md-12">
                     <label class="form-label">{{ __('field.description') }}</label>

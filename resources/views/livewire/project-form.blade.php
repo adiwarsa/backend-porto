@@ -17,22 +17,54 @@
                 <input wire:model.defer="type" type="text" class="form-control" placeholder="e.g. website">
                 @error('type') <span class="text-danger small">{{ $message }}</span> @enderror
             </div>
-            <div class="col-md-6">
-                <label class="form-label">Image</label>
-                @if($mode === 'edit' && isset($imagePreview) && !$image && $imagePreview)
-                    <img src="{{ $imagePreview }}" class="img-thumbnail mb-2" style="max-height: 150px;">
-                @elseif($mode === 'edit' && isset($imagePreview) && $image)
-                    <img src="{{ $imagePreview }}" class="img-thumbnail mb-2" style="max-height: 150px;">
-                @elseif($mode === 'edit' && isset($projectId) && $projectId && !$image)
-                    @php
-                        $project = \App\Models\Project::find($projectId);
-                    @endphp
-                    @if($project && $project->image)
-                        <img src="{{ asset('storage/'.$project->image) }}" class="img-thumbnail mb-2" style="max-height: 150px;">
-                    @endif
+            <div class="col-md-12">
+                <label class="form-label">Images</label>
+                
+                <!-- Existing Images (Edit Mode) -->
+                @if($mode === 'edit' && !empty($existingImages))
+                    <div class="mb-3">
+                        <h6 class="text-muted">Existing Images:</h6>
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            @foreach($existingImages as $index => $image)
+                                <div class="position-relative">
+                                    <img src="{{ asset('storage/'.$image) }}" class="img-thumbnail" style="max-height: 100px;">
+                                    <button type="button" class="btn btn-sm btn-danger position-absolute top-0 end-0" 
+                                            wire:click="removeExistingImage({{ $index }})" 
+                                            style="transform: translate(50%, -50%);">
+                                        <i class="bx bx-x"></i>
+                                    </button>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
                 @endif
-                <input wire:model="image" type="file" class="form-control">
-                @error('image') <span class="text-danger small">{{ $message }}</span> @enderror
+
+                <!-- New Image Uploads -->
+                <div class="mb-3">
+                    <h6 class="text-muted">Add New Images:</h6>
+                    @foreach($images as $index => $image)
+                        <div class="row mb-2 align-items-center">
+                            <div class="col-md-10">
+                                <input wire:model="images.{{ $index }}" type="file" class="form-control" accept="image/*">
+                                @error("images.{$index}") <span class="text-danger small">{{ $message }}</span> @enderror
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-sm btn-danger" wire:click="removeImage({{ $index }})">
+                                    <i class="bx bx-trash"></i> Remove
+                                </button>
+                            </div>
+                        </div>
+                        @if(isset($imagePreviews[$index]))
+                            <div class="mb-2">
+                                <img src="{{ $imagePreviews[$index] }}" class="img-thumbnail" style="max-height: 100px;">
+                            </div>
+                        @endif
+                    @endforeach
+                    
+                    <button type="button" class="btn btn-sm btn-success" wire:click="addImage">
+                        <i class="bx bx-plus"></i> Add Another Image
+                    </button>
+                </div>
             </div>
             <div class="col-md-6">
                 <label class="form-label">Author</label>
@@ -49,11 +81,7 @@
                 <input wire:model.defer="status" type="text" class="form-control" placeholder="e.g. Active Development">
                 @error('status') <span class="text-danger small">{{ $message }}</span> @enderror
             </div>
-            <div class="col-md-6">
-                <label class="form-label">Gradient</label>
-                <input wire:model.defer="gradient" type="text" class="form-control" placeholder="e.g. from-purple-500 to-pink-500">
-                @error('gradient') <span class="text-danger small">{{ $message }}</span> @enderror
-            </div>
+
             <div class="col-md-12">
                 <label class="form-label">Description</label>
                 <textarea wire:model.defer="description" class="form-control" rows="3" placeholder="e.g. Lorem ipsum dolor sit amet, consectetur adipiscing elit."></textarea>
@@ -106,3 +134,4 @@
     });
 </script>
 @endpush
+

@@ -59,10 +59,14 @@
                     </div>
                     <div class="modal-body row g-3">
                         <div class="col-md-4 text-center">
-                            @if($modalProject->image)
-                                <img src="{{ asset('storage/'.$modalProject->image) }}" class="img-fluid rounded mb-2" style="max-height:200px;">
+                            @if($modalProject->images && count($modalProject->images) > 0)
+                                <div class="mb-2">
+                                    @foreach($modalProject->images as $image)
+                                        <img src="{{ asset('storage/'.$image) }}" class="img-fluid rounded mb-2" style="max-height:150px; max-width:100%;">
+                                    @endforeach
+                                </div>
                             @else
-                                <div class="text-muted">No image</div>
+                                <div class="text-muted">No images</div>
                             @endif
                         </div>
                         <div class="col-md-8">
