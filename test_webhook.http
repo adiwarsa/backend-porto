@@ -108,6 +108,22 @@ Content-Type: application/json
 
 ###
 
+# Test booking rejection - BK001 (should succeed) - GET (authorized)
+GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=!reject BK001
+
+###
+
+# Test booking rejection - BK001 (should succeed) - POST (authorized)
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "sender": "6281234567890",
+    "message": "!reject BK001"
+}
+
+###
+
 # Test booking approval - BK002 (should succeed) - GET (authorized)
 GET {{base_url}}/api/webhook/fonnte?sender=6289876543210&message=!approve BK002
 
@@ -120,6 +136,22 @@ Content-Type: application/json
 {
     "sender": "6289876543210",
     "message": "!approve BK002"
+}
+
+###
+
+# Test booking rejection - BK002 (should succeed) - GET (authorized)
+GET {{base_url}}/api/webhook/fonnte?sender=6289876543210&message=!reject BK002
+
+###
+
+# Test booking rejection - BK002 (should succeed) - POST (authorized)
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "sender": "6289876543210",
+    "message": "!reject BK002"
 }
 
 ###
@@ -140,6 +172,22 @@ Content-Type: application/json
 
 ###
 
+# Test booking rejection - BK003 (should fail - already approved) - GET (authorized)
+GET {{base_url}}/api/webhook/fonnte?sender=6281122334455&message=!reject BK003
+
+###
+
+# Test booking rejection - BK003 (should fail - already approved) - POST (authorized)
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "sender": "6281122334455",
+    "message": "!reject BK003"
+}
+
+###
+
 # Test booking approval - BK999 (should fail - not found) - GET (authorized)
 GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=!approve BK999
 
@@ -152,6 +200,22 @@ Content-Type: application/json
 {
     "sender": "6281234567890",
     "message": "!approve BK999"
+}
+
+###
+
+# Test booking rejection - BK999 (should fail - not found) - GET (authorized)
+GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=!reject BK999
+
+###
+
+# Test booking rejection - BK999 (should fail - not found) - POST (authorized)
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "sender": "6281234567890",
+    "message": "!reject BK999"
 }
 
 ###

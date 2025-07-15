@@ -167,7 +167,8 @@ class WebhookController extends Controller
                     'Video' . "\n" .
                     'Image' . "\n" .
                     'File' . "\n" .
-                    '!approve {booking_number}'
+                    '!approve {booking_number}' . "\n" .
+                    '!reject {booking_number}'
             ];
         }
 
@@ -179,36 +180,42 @@ class WebhookController extends Controller
             return $this->processBookingApproval($bookingNumber);
         }
 
+        // Check for booking rejection command
+        if (preg_match('/^!reject\s+(.+)$/i', $message, $matches)) {
+            $bookingNumber = trim($matches[1]);
+            return $this->processBookingRejection($bookingNumber);
+        }
+
         $message = strtolower($message);
 
         switch ($message) {
             case 'test':
                 return [
-                    'message' => 'working great!'
+                    'message' => 'Masuk!'
                 ];
 
             case 'image':
                 return [
-                    'message' => 'image message',
+                    'message' => 'Image message',
                     'url' => 'https://filesamples.com/samples/image/jpg/sample_640%C3%97426.jpg'
                 ];
 
             case 'audio':
                 return [
-                    'message' => 'audio message',
+                    'message' => 'Audio message',
                     'url' => 'https://filesamples.com/samples/audio/mp3/sample3.mp3',
                     'filename' => 'music'
                 ];
 
             case 'video':
                 return [
-                    'message' => 'video message',
+                    'message' => 'Video message',
                     'url' => 'https://filesamples.com/samples/video/mp4/sample_640x360.mp4'
                 ];
 
             case 'file':
                 return [
-                    'message' => 'file message',
+                    'message' => 'File message',
                     'url' => 'https://filesamples.com/samples/document/docx/sample3.docx',
                     'filename' => 'document'
                 ];
@@ -221,7 +228,8 @@ class WebhookController extends Controller
                         'Video' . "\n" .
                         'Image' . "\n" .
                         'File' . "\n" .
-                        '!approve {booking_number}'
+                        '!approve {booking_number}' . "\n" .
+                        '!reject {booking_number}'
                 ];
         }
     }
@@ -308,6 +316,92 @@ class WebhookController extends Controller
 
             return [
                 'message' => "❌ Error approving booking!\n\nBooking number: {$bookingNumber}\nError: " . $e->getMessage() . "\n\nPlease try again or contact support."
+            ];
+        }
+    }
+
+    /**
+     * Process booking rejection command
+     */
+    private function processBookingRejection(string $bookingNumber): array
+    {
+        try {
+            // Mock booking data instead of database query
+            $booking = $this->getMockBooking($bookingNumber);
+
+            if (!$booking) {
+                return [
+                    'message' => "❌ Booking not found!\n\nBooking number: {$bookingNumber}\n\nPlease check the booking number and try again."
+                ];
+            }
+
+            // Check if booking is in draft status
+            if ($booking['status'] !== 'D') {
+                $statusText = $this->getStatusText($booking['status']);
+                return [
+                    'message' => "❌ Booking cannot be rejected!\n\nBooking number: {$bookingNumber}\nCurrent status: {$statusText}\n\nOnly draft bookings can be rejected."
+                ];
+            }
+
+            // Simulate updating booking status from Draft (D) to Cancelled (C)
+            $booking['status'] = 'C';
+            $booking['updated_at'] = Carbon::now();
+
+            // Mock booking details
+            $bookingDetails = $this->getMockBookingDetails($bookingNumber);
+
+            // Mock member info
+            $member = $this->getMockMember($booking['member_code']);
+
+            // Mock agent info
+            $agent = $this->getMockAgent($booking['agent_code']);
+
+            // Build response message
+            $responseMessage = "✅ Booking rejected successfully!\n\n";
+            $responseMessage .= "📋 *Booking Details:*\n";
+            $responseMessage .= "• Booking No: {$bookingNumber}\n";
+            $responseMessage .= "• Date: " . date('d M Y', strtotime($booking['date'])) . "\n";
+            $responseMessage .= "• Type: " . ($booking['type'] === 'W' ? 'Walk In' : 'Online') . "\n";
+            $responseMessage .= "• Status: Cancelled\n";
+            $responseMessage .= "• Total Amount: Rp " . number_format($booking['nett'], 0, ',', '.') . "\n";
+
+            if ($member) {
+                $responseMessage .= "• Customer: {$member['name']}\n";
+                $responseMessage .= "• Phone: {$member['phone']}\n";
+            }
+
+            if ($agent) {
+                $responseMessage .= "• Agent: {$agent['name']}\n";
+            }
+
+            if (count($bookingDetails) > 0) {
+                $responseMessage .= "\n📦 *Packages:*\n";
+                foreach ($bookingDetails as $detail) {
+                    $responseMessage .= "• {$detail['name']} (Qty: {$detail['qty']})\n";
+                }
+            }
+
+            $responseMessage .= "\n🎉 The booking has been rejected and is now cancelled!";
+
+            Log::info('Booking rejected via webhook', [
+                'booking_number' => $bookingNumber,
+                'old_status' => 'D',
+                'new_status' => 'C',
+                'rejected_at' => Carbon::now()
+            ]);
+
+            return [
+                'message' => $responseMessage
+            ];
+        } catch (\Exception $e) {
+            Log::error('Booking rejection error', [
+                'booking_number' => $bookingNumber,
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return [
+                'message' => "❌ Error rejecting booking!\n\nBooking number: {$bookingNumber}\nError: " . $e->getMessage() . "\n\nPlease try again or contact support."
             ];
         }
     }
@@ -566,7 +660,8 @@ class WebhookController extends Controller
                 'audio',
                 'video',
                 'file',
-                '!approve {booking_number}'
+                '!approve {booking_number}',
+                '!reject {booking_number}'
             ],
             'authorized_numbers' => $this->authorizedNumbers,
             'example_requests' => [
