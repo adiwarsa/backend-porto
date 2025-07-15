@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Api\WebhookController;
+use App\Http\Controllers\WebhookController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SkillController;
