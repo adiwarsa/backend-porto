@@ -1,0 +1,131 @@
+### Test Webhook Endpoints
+
+# Test the webhook test endpoint
+GET {{base_url}}/api/webhook/test
+
+###
+
+# Test Fonnte webhook with GET method
+GET {{base_url}}/api/webhook/fonnte?device=test-device&sender=6281234567890&message=test
+
+###
+
+# Test Fonnte webhook with POST method
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "device": "test-device",
+    "sender": "6281234567890",
+    "message": "test"
+}
+
+###
+
+# Test booking approval - BK001 (should succeed)
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "device": "test-device",
+    "sender": "6281234567890",
+    "message": "!approve BK001"
+}
+
+###
+
+# Test booking approval - BK002 (should succeed)
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "device": "test-device",
+    "sender": "6281234567890",
+    "message": "!approve BK002"
+}
+
+###
+
+# Test booking approval - BK003 (should fail - already approved)
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "device": "test-device",
+    "sender": "6281234567890",
+    "message": "!approve BK003"
+}
+
+###
+
+# Test booking approval - BK999 (should fail - not found)
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "device": "test-device",
+    "sender": "6281234567890",
+    "message": "!approve BK999"
+}
+
+###
+
+# Test image message
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "device": "test-device",
+    "sender": "6281234567890",
+    "message": "image"
+}
+
+###
+
+# Test audio message
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "device": "test-device",
+    "sender": "6281234567890",
+    "message": "audio"
+}
+
+###
+
+# Test video message
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "device": "test-device",
+    "sender": "6281234567890",
+    "message": "video"
+}
+
+###
+
+# Test file message
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "device": "test-device",
+    "sender": "6281234567890",
+    "message": "file"
+}
+
+###
+
+# Test unknown message
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "device": "test-device",
+    "sender": "6281234567890",
+    "message": "unknown"
+}
+
+### 
