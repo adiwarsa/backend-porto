@@ -78,13 +78,27 @@ class WebhookController extends Controller
             // Process message and generate reply
             $reply = $this->processMessage($message);
 
-            // Send reply using Guzzle
-            $response = $this->sendFonnte($sender, $reply);
+            // Only send reply if we have a sender
+            $response = null;
+            if ($sender) {
+                $response = $this->sendFonnte($sender, $reply);
+            } else {
+                Log::warning('No sender provided in webhook request', [
+                    'method' => $method,
+                    'data' => $data
+                ]);
+                $response = [
+                    'success' => false,
+                    'error' => 'No sender provided'
+                ];
+            }
 
             return response()->json([
                 'success' => true,
                 'message' => "Webhook processed successfully ({$method})",
-                'response' => $response
+                'response' => $response,
+                'sender' => $sender,
+                'processed_message' => $reply['message'] ?? null
             ]);
         } catch (\Exception $e) {
             Log::error('Webhook processing error', [
@@ -491,11 +505,70 @@ class WebhookController extends Controller
     /**
      * Test endpoint to verify webhook is working
      */
-    public function test(): JsonResponse
+    public function test(Request $request): JsonResponse
     {
+        $method = $request->method();
+
         return response()->json([
             'success' => true,
             'message' => 'Webhook endpoint is working!',
+            'method' => $method,
+            'timestamp' => Carbon::now()->toISOString(),
+            'endpoints' => [
+                'test' => 'GET/POST /api/webhook/test',
+                'fonnte_webhook' => 'GET/POST /api/webhook/fonnte',
+                'test_message' => 'GET/POST /api/webhook/test-message'
+            ],
+            'supported_commands' => [
+                'test',
+                'image',
+                'audio',
+                'video',
+                'file',
+                '!approve {booking_number}'
+            ],
+            'example_requests' => [
+                'get' => '/api/webhook/fonnte?sender=6281234567890&message=test',
+                'post' => 'POST /api/webhook/fonnte with JSON body: {"sender": "6281234567890", "message": "test"}'
+            ]
+        ]);
+    }
+
+    /**
+     * Test message processing without sending (supports both GET and POST)
+     */
+    public function testMessage(Request $request): JsonResponse
+    {
+        $method = $request->method();
+
+        // Get message from appropriate source based on method
+        if ($method === 'GET') {
+            $message = $request->query('message');
+        } else {
+            // POST method - try request body first, then query params
+            $data = $request->all();
+            $message = $data['message'] ?? $request->query('message');
+        }
+
+        if (!$message) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please provide a message parameter',
+                'method' => $method,
+                'examples' => [
+                    'get' => '/api/webhook/test-message?message=test',
+                    'post' => 'POST /api/webhook/test-message with JSON body: {"message": "test"}'
+                ]
+            ], 400);
+        }
+
+        $reply = $this->processMessage($message);
+
+        return response()->json([
+            'success' => true,
+            'method' => $method,
+            'input_message' => $message,
+            'processed_reply' => $reply,
             'timestamp' => Carbon::now()->toISOString()
         ]);
     }

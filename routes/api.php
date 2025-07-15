@@ -5,9 +5,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SkillController;
 
-// Webhook routes - no authentication required
+// Webhook routes - no authentication required (all support GET and POST)
 Route::match(['GET', 'POST'], 'webhook/fonnte', [WebhookController::class, 'handleFonnteWebhook']);
-Route::get('webhook/test', [WebhookController::class, 'test']);
+Route::match(['GET', 'POST'], 'webhook/test', [WebhookController::class, 'test']);
+Route::match(['GET', 'POST'], 'webhook/test-message', [WebhookController::class, 'testMessage']);
 
 Route::middleware('api.token')->group(function () {
     // Project routes

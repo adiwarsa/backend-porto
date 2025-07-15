@@ -1,7 +1,30 @@
 ### Test Webhook Endpoints
 
-# Test the webhook test endpoint
+# Test the webhook test endpoint - GET
 GET {{base_url}}/api/webhook/test
+
+###
+
+# Test the webhook test endpoint - POST
+POST {{base_url}}/api/webhook/test
+Content-Type: application/json
+
+{}
+
+###
+
+# Test message processing - GET
+GET {{base_url}}/api/webhook/test-message?message=test
+
+###
+
+# Test message processing - POST
+POST {{base_url}}/api/webhook/test-message
+Content-Type: application/json
+
+{
+    "message": "test"
+}
 
 ###
 
@@ -22,110 +45,161 @@ Content-Type: application/json
 
 ###
 
-# Test booking approval - BK001 (should succeed)
+# Test booking approval - BK001 (should succeed) - GET
+GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=!approve BK001
+
+###
+
+# Test booking approval - BK001 (should succeed) - POST
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
 {
-    "device": "test-device",
     "sender": "6281234567890",
     "message": "!approve BK001"
 }
 
 ###
 
-# Test booking approval - BK002 (should succeed)
+# Test booking approval - BK002 (should succeed) - GET
+GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=!approve BK002
+
+###
+
+# Test booking approval - BK002 (should succeed) - POST
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
 {
-    "device": "test-device",
     "sender": "6281234567890",
     "message": "!approve BK002"
 }
 
 ###
 
-# Test booking approval - BK003 (should fail - already approved)
+# Test booking approval - BK003 (should fail - already approved) - GET
+GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=!approve BK003
+
+###
+
+# Test booking approval - BK003 (should fail - already approved) - POST
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
 {
-    "device": "test-device",
     "sender": "6281234567890",
     "message": "!approve BK003"
 }
 
 ###
 
-# Test booking approval - BK999 (should fail - not found)
+# Test booking approval - BK999 (should fail - not found) - GET
+GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=!approve BK999
+
+###
+
+# Test booking approval - BK999 (should fail - not found) - POST
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
 {
-    "device": "test-device",
     "sender": "6281234567890",
     "message": "!approve BK999"
 }
 
 ###
 
-# Test image message
+# Test image message - GET
+GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=image
+
+###
+
+# Test image message - POST
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
 {
-    "device": "test-device",
     "sender": "6281234567890",
     "message": "image"
 }
 
 ###
 
-# Test audio message
+# Test audio message - GET
+GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=audio
+
+###
+
+# Test audio message - POST
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
 {
-    "device": "test-device",
     "sender": "6281234567890",
     "message": "audio"
 }
 
 ###
 
-# Test video message
+# Test video message - GET
+GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=video
+
+###
+
+# Test video message - POST
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
 {
-    "device": "test-device",
     "sender": "6281234567890",
     "message": "video"
 }
 
 ###
 
-# Test file message
+# Test file message - GET
+GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=file
+
+###
+
+# Test file message - POST
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
 {
-    "device": "test-device",
     "sender": "6281234567890",
     "message": "file"
 }
 
 ###
 
-# Test unknown message
+# Test unknown message - GET
+GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=unknown
+
+###
+
+# Test unknown message - POST
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
 {
-    "device": "test-device",
     "sender": "6281234567890",
     "message": "unknown"
+}
+
+###
+
+# Test without sender (should not send reply) - GET
+GET {{base_url}}/api/webhook/fonnte?message=test
+
+###
+
+# Test without sender (should not send reply) - POST
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "message": "test"
 }
 
 ### 
