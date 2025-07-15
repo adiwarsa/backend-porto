@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\WebhookController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProjectController;
 use App\Http\Controllers\SkillController;
-use App\Http\Controllers\Api\WebhookController;
 
 // Webhook routes - no authentication required
 Route::match(['GET', 'POST'], 'webhook/fonnte', [WebhookController::class, 'handleFonnteWebhook']);
