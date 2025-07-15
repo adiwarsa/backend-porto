@@ -9,6 +9,7 @@ use App\Http\Controllers\SkillController;
 Route::match(['GET', 'POST'], 'webhook/fonnte', [WebhookController::class, 'handleFonnteWebhook']);
 Route::match(['GET', 'POST'], 'webhook/test', [WebhookController::class, 'test']);
 Route::match(['GET', 'POST'], 'webhook/test-message', [WebhookController::class, 'testMessage']);
+Route::match(['GET', 'POST'], 'webhook/check-auth', [WebhookController::class, 'checkAuth']);
 
 Route::middleware('api.token')->group(function () {
     // Project routes

@@ -14,6 +14,7 @@ class WebhookController extends Controller
 {
     private $client;
     private $fonnteToken;
+    private $authorizedNumbers;
 
     public function __construct()
     {
@@ -24,6 +25,26 @@ class WebhookController extends Controller
 
         // Get token from environment variable
         $this->fonnteToken = 'GWNoRy#ngyYRD@4!zZnX';
+
+        // Authorized phone numbers that can use the webhook
+        $this->authorizedNumbers = [
+            '6289621791541',
+        ];
+    }
+
+    /**
+     * Check if the sender number is authorized
+     */
+    private function isAuthorizedNumber(?string $sender): bool
+    {
+        if (!$sender) {
+            return false;
+        }
+
+        // Clean the phone number (remove +, spaces, etc.)
+        $cleanNumber = preg_replace('/[^0-9]/', '', $sender);
+
+        return in_array($cleanNumber, $this->authorizedNumbers);
     }
 
     /**
@@ -75,10 +96,27 @@ class WebhookController extends Controller
                 'data_source' => $method === 'GET' ? 'query_params' : 'request_body'
             ]);
 
-            // Process message and generate reply
+            // Check if sender is authorized - if not, return early without processing
+            if (!$this->isAuthorizedNumber($sender)) {
+                Log::warning('Unauthorized webhook access attempt - no message sent', [
+                    'sender' => $sender,
+                    'method' => $method,
+                    'message' => $message
+                ]);
+
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Unauthorized access. Your phone number is not authorized to use this webhook.',
+                    'sender' => $sender,
+                    'authorized' => false,
+                    'message_sent' => false
+                ], 403);
+            }
+
+            // Only process message if sender is authorized
             $reply = $this->processMessage($message);
 
-            // Only send reply if we have a sender
+            // Send reply only to authorized numbers
             $response = null;
             if ($sender) {
                 $response = $this->sendFonnte($sender, $reply);
@@ -98,7 +136,9 @@ class WebhookController extends Controller
                 'message' => "Webhook processed successfully ({$method})",
                 'response' => $response,
                 'sender' => $sender,
-                'processed_message' => $reply['message'] ?? null
+                'processed_message' => $reply['message'] ?? null,
+                'authorized' => true,
+                'message_sent' => true
             ]);
         } catch (\Exception $e) {
             Log::error('Webhook processing error', [
@@ -281,7 +321,7 @@ class WebhookController extends Controller
         $mockBookings = [
             'BK001' => [
                 'no' => 'BK001',
-                'date' => '2024-01-15',
+                'date' => '2025-07-15',
                 'type' => 'W', // W = Walk In, O = Online
                 'status' => 'D', // D = Draft, N = None, S = Show Up, C = Cancelled
                 'nett' => 1500000,
@@ -291,7 +331,7 @@ class WebhookController extends Controller
             ],
             'BK002' => [
                 'no' => 'BK002',
-                'date' => '2024-01-16',
+                'date' => '2025-07-16',
                 'type' => 'O',
                 'status' => 'D',
                 'nett' => 2500000,
@@ -301,7 +341,7 @@ class WebhookController extends Controller
             ],
             'BK003' => [
                 'no' => 'BK003',
-                'date' => '2024-01-17',
+                'date' => '2025-07-17',
                 'type' => 'W',
                 'status' => 'N', // Already approved
                 'nett' => 800000,
@@ -517,7 +557,8 @@ class WebhookController extends Controller
             'endpoints' => [
                 'test' => 'GET/POST /api/webhook/test',
                 'fonnte_webhook' => 'GET/POST /api/webhook/fonnte',
-                'test_message' => 'GET/POST /api/webhook/test-message'
+                'test_message' => 'GET/POST /api/webhook/test-message',
+                'check_auth' => 'GET/POST /api/webhook/check-auth?number=6281234567890'
             ],
             'supported_commands' => [
                 'test',
@@ -527,10 +568,51 @@ class WebhookController extends Controller
                 'file',
                 '!approve {booking_number}'
             ],
+            'authorized_numbers' => $this->authorizedNumbers,
             'example_requests' => [
                 'get' => '/api/webhook/fonnte?sender=6281234567890&message=test',
                 'post' => 'POST /api/webhook/fonnte with JSON body: {"sender": "6281234567890", "message": "test"}'
             ]
+        ]);
+    }
+
+    /**
+     * Check if a phone number is authorized
+     */
+    public function checkAuth(Request $request): JsonResponse
+    {
+        $method = $request->method();
+
+        // Get number from appropriate source based on method
+        if ($method === 'GET') {
+            $number = $request->query('number');
+        } else {
+            // POST method - try request body first, then query params
+            $data = $request->all();
+            $number = $data['number'] ?? $request->query('number');
+        }
+
+        if (!$number) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Please provide a number parameter',
+                'method' => $method,
+                'examples' => [
+                    'get' => '/api/webhook/check-auth?number=6281234567890',
+                    'post' => 'POST /api/webhook/check-auth with JSON body: {"number": "6281234567890"}'
+                ]
+            ], 400);
+        }
+
+        $isAuthorized = $this->isAuthorizedNumber($number);
+
+        return response()->json([
+            'success' => true,
+            'method' => $method,
+            'number' => $number,
+            'authorized' => $isAuthorized,
+            'authorized_numbers' => $this->authorizedNumbers,
+            'timestamp' => Carbon::now()->toISOString()
         ]);
     }
 

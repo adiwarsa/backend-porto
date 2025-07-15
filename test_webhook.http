@@ -13,8 +13,38 @@ Content-Type: application/json
 
 ###
 
+# Check authorization - GET (authorized number)
+GET {{base_url}}/api/webhook/check-auth?number=6281234567890
+
+###
+
+# Check authorization - POST (authorized number)
+POST {{base_url}}/api/webhook/check-auth
+Content-Type: application/json
+
+{
+    "number": "6281234567890"
+}
+
+###
+
+# Check authorization - GET (unauthorized number)
+GET {{base_url}}/api/webhook/check-auth?number=6289999999999
+
+###
+
+# Check authorization - POST (unauthorized number)
+POST {{base_url}}/api/webhook/check-auth
+Content-Type: application/json
+
+{
+    "number": "6289999999999"
+}
+
+###
+
 # Test message processing - GET
-GET {{base_url}}/api/webhook/test-message?message=test
+GET {{base_url}}/api/webhook/test-message?message=adi
 
 ###
 
@@ -23,34 +53,51 @@ POST {{base_url}}/api/webhook/test-message
 Content-Type: application/json
 
 {
-    "message": "test"
+    "message": "adi"
 }
 
 ###
 
-# Test Fonnte webhook with GET method
-GET {{base_url}}/api/webhook/fonnte?device=test-device&sender=6281234567890&message=test
+# Test Fonnte webhook with GET method (authorized number)
+GET {{base_url}}/api/webhook/fonnte?device=test-device&sender=6281234567890&message=adi
 
 ###
 
-# Test Fonnte webhook with POST method
+# Test Fonnte webhook with POST method (authorized number)
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
 {
     "device": "test-device",
     "sender": "6281234567890",
-    "message": "test"
+    "message": "adi"
 }
 
 ###
 
-# Test booking approval - BK001 (should succeed) - GET
+# Test Fonnte webhook with GET method (unauthorized number - should be blocked)
+GET {{base_url}}/api/webhook/fonnte?device=test-device&sender=6289999999999&message=adi
+
+###
+
+# Test Fonnte webhook with POST method (unauthorized number - should be blocked)
+POST {{base_url}}/api/webhook/fonnte
+Content-Type: application/json
+
+{
+    "device": "test-device",
+    "sender": "6289999999999",
+    "message": "adi"
+}
+
+###
+
+# Test booking approval - BK001 (should succeed) - GET (authorized)
 GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=!approve BK001
 
 ###
 
-# Test booking approval - BK001 (should succeed) - POST
+# Test booking approval - BK001 (should succeed) - POST (authorized)
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
@@ -61,44 +108,44 @@ Content-Type: application/json
 
 ###
 
-# Test booking approval - BK002 (should succeed) - GET
-GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=!approve BK002
+# Test booking approval - BK002 (should succeed) - GET (authorized)
+GET {{base_url}}/api/webhook/fonnte?sender=6289876543210&message=!approve BK002
 
 ###
 
-# Test booking approval - BK002 (should succeed) - POST
+# Test booking approval - BK002 (should succeed) - POST (authorized)
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
 {
-    "sender": "6281234567890",
+    "sender": "6289876543210",
     "message": "!approve BK002"
 }
 
 ###
 
-# Test booking approval - BK003 (should fail - already approved) - GET
-GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=!approve BK003
+# Test booking approval - BK003 (should fail - already approved) - GET (authorized)
+GET {{base_url}}/api/webhook/fonnte?sender=6281122334455&message=!approve BK003
 
 ###
 
-# Test booking approval - BK003 (should fail - already approved) - POST
+# Test booking approval - BK003 (should fail - already approved) - POST (authorized)
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
 {
-    "sender": "6281234567890",
+    "sender": "6281122334455",
     "message": "!approve BK003"
 }
 
 ###
 
-# Test booking approval - BK999 (should fail - not found) - GET
+# Test booking approval - BK999 (should fail - not found) - GET (authorized)
 GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=!approve BK999
 
 ###
 
-# Test booking approval - BK999 (should fail - not found) - POST
+# Test booking approval - BK999 (should fail - not found) - POST (authorized)
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
@@ -109,12 +156,12 @@ Content-Type: application/json
 
 ###
 
-# Test image message - GET
+# Test image message - GET (authorized)
 GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=image
 
 ###
 
-# Test image message - POST
+# Test image message - POST (authorized)
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
@@ -125,12 +172,12 @@ Content-Type: application/json
 
 ###
 
-# Test audio message - GET
+# Test audio message - GET (authorized)
 GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=audio
 
 ###
 
-# Test audio message - POST
+# Test audio message - POST (authorized)
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
@@ -141,12 +188,12 @@ Content-Type: application/json
 
 ###
 
-# Test video message - GET
+# Test video message - GET (authorized)
 GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=video
 
 ###
 
-# Test video message - POST
+# Test video message - POST (authorized)
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
@@ -157,12 +204,12 @@ Content-Type: application/json
 
 ###
 
-# Test file message - GET
+# Test file message - GET (authorized)
 GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=file
 
 ###
 
-# Test file message - POST
+# Test file message - POST (authorized)
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
@@ -173,12 +220,12 @@ Content-Type: application/json
 
 ###
 
-# Test unknown message - GET
+# Test unknown message - GET (authorized)
 GET {{base_url}}/api/webhook/fonnte?sender=6281234567890&message=unknown
 
 ###
 
-# Test unknown message - POST
+# Test unknown message - POST (authorized)
 POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
@@ -190,7 +237,7 @@ Content-Type: application/json
 ###
 
 # Test without sender (should not send reply) - GET
-GET {{base_url}}/api/webhook/fonnte?message=test
+GET {{base_url}}/api/webhook/fonnte?message=adi
 
 ###
 
@@ -199,7 +246,7 @@ POST {{base_url}}/api/webhook/fonnte
 Content-Type: application/json
 
 {
-    "message": "test"
+    "message": "adi"
 }
 
 ### 
